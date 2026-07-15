@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sendify - Kılavuz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Dark Theme (Slate-900 Background, Teal-400 Accent, Slate-100 Text) -->
+    <!-- Application Structure Plan: A tabbed single-page application (SPA) design was chosen to transform the linear README document into an interactive, user-driven experience. The structure includes four main tabs: 'Genel Bakış' (Overview), 'Kurulum' (Installation), 'Kullanım Kılavuzu' (Usage), and 'Teknik Yapı' (Technical Structure). This non-linear navigation allows users to directly access the information most relevant to their needs (e.g., a new user starting with 'Kurulum', a developer checking 'Teknik Yapı'), enhancing usability. The user flow begins with the overview and encourages exploration through clear, task-oriented tabs. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Key Features -> Goal: Inform -> Presentation: Thematic cards with icons (HTML/Tailwind) -> Interaction: Hover effects -> Justification: Visually separates and highlights core benefits.
+        - Report Info: Installation Steps -> Goal: Instruct -> Presentation: Numbered list with code blocks -> Interaction: "Copy to Clipboard" buttons (JS) -> Justification: Simplifies the setup process and reduces user error.
+        - Report Info: Usage Guide -> Goal: Demonstrate -> Presentation: Visual process flow diagram (HTML/Tailwind) -> Interaction: Highlighting steps on hover/click -> Justification: More intuitive for explaining a UI workflow than plain text.
+        - Report Info: Project Structure & Tech -> Goal: Organize/Analyze -> Presentation: Doughnut Chart (Chart.js/Canvas) showing file roles -> Interaction: Tooltips on hover -> Justification: Provides a quick, quantitative-like visual summary of the project's architecture, making it more digestible.
+        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            /* Slate-900 */
+            color: #f1f5f9;
+            /* Slate-100 */
+        }
+
+        .container {
+            background-color: #1e293b;
+            /* Slate-800 for main content area */
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        }
+
+        .header-text {
+            color: #cbd5e1;
+            /* Slate-300 */
+        }
+
+        .tab-btn {
+            transition: all 0.3s ease;
+            background-color: #334155;
+            /* Slate-700 */
+            color: #94a3b8;
+            /* Slate-400 */
+        }
+
+        .tab-btn:hover {
+            background-color: #475569;
+            /* Slate-600 */
+        }
+
+        .tab-btn.active {
+            background-color: #2dd4bf;
+            /* Teal-400 */
+            color: #1f2937;
+            /* Dark text for contrast */
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .content-card {
+            background-color: #1e293b;
+            /* Slate-800 */
+            border: 1px solid #334155;
+            /* Slate-700 */
+        }
+
+        .feature-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background-color: #1e293b;
+            /* Slate-800 */
+            border: 1px solid #334155;
+            /* Slate-700 */
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 20px -5px rgba(0, 0, 0, 0.4);
+            background-color: #334155;
+            /* Slightly lighter on hover */
+        }
+
+        .code-block {
+            position: relative;
+            background-color: #0f172a;
+            /* Slate-900 */
+            color: #d1d5db;
+            /* Gray-300 */
+            border: 1px solid #374151;
+            /* Gray-700 */
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: #475569;
+            color: #e2e8f0;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            background-color: #64748b;
+        }
+
+        .usage-step {
+            border-left: 3px solid #2dd4bf;
+            /* Teal-400 */
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px;
+            max-height: 40vh;
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+
+    <div class="container mx-auto px-4 py-8 md:py-12">
+
+        <header class="text-center mb-8 md:mb-12">
+            <h1 class="4xl md:text-5xl font-bold header-text">Sendify</h1>
+            <p class="mt-2 text-lg text-slate-400">Excel'den WhatsApp'a Kişiselleştirilmiş Mesaj Otomasyonu Kılavuzu</p>
+        </header>
+
+        <main>
+            <nav
+                class="flex justify-center mb-8 bg-slate-900/70 backdrop-blur-sm sticky top-4 z-10 p-2 rounded-xl shadow-xl border border-slate-700">
+                <div id="tabs" class="flex flex-wrap justify-center space-x-2 rounded-lg">
+                    <button data-tab="overview"
+                        class="tab-btn px-4 py-2 rounded-md text-sm md:text-base font-medium active">Genel
+                        Bakış</button>
+                    <button data-tab="installation"
+                        class="tab-btn px-4 py-2 rounded-md text-sm md:text-base font-medium">Kurulum</button>
+                    <button data-tab="usage"
+                        class="tab-btn px-4 py-2 rounded-md text-sm md:text-base font-medium">Kullanım Kılavuzu</button>
+                    <button data-tab="structure"
+                        class="tab-btn px-4 py-2 rounded-md text-sm md:text-base font-medium">Teknik Yapı</button>
+                </div>
+            </nav>
+
+            <div id="tab-contents">
+                <section id="overview" class="tab-content active">
+                    <div class="content-card p-6 md:p-8 rounded-2xl shadow-lg">
+                        <h2 class="text-2xl md:text-3xl font-bold header-text mb-2">Araca Genel Bakış</h2>
+                        <p class="text-slate-400 mb-6">Bu uygulama, Excel'deki kişi listelerine otomatik, toplu ve
+                            kişiselleştirilmiş mesaj göndermek için tasarlanmış bir masaüstü aracıdır. Manuel mesajlaşma
+                            zahmetini ortadan kaldırarak verimliliği artırır ve iletişimi kişisel bir dokunuşla
+                            ölçeklendirmenizi sağlar.</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <div class="feature-card p-6 rounded-xl">
+                                <div class="text-3xl mb-3 text-teal-400">👤</div>
+                                <h3 class="font-bold text-lg text-teal-300">Kişiselleştirme</h3>
+                                <p class="text-sm text-slate-400">Mesajlarda `{name}` gibi yer tutucular kullanarak her
+                                    alıcıya ismiyle hitap edin, etkileşimi artırın.</p>
+                            </div>
+                            <div class="feature-card p-6 rounded-xl">
+                                <div class="text-3xl mb-3 text-teal-400">🛡️</div>
+                                <h3 class="font-bold text-lg text-teal-300">Güvenli Otomasyon</h3>
+                                <p class="text-sm text-slate-400">Farklı hız modları (SAFE, FAST, TURBO) ile gönderim
+                                    hızını ayarlayarak hesap kısıtlama riskini en aza indirin.</p>
+                            </div>
+                            <div class="feature-card p-6 rounded-xl">
+                                <div class="text-3xl mb-3 text-teal-400">📈</div>
+                                <h3 class="font-bold text-lg text-teal-300">Gerçek Zamanlı Takip</h3>
+                                <p class="text-sm text-slate-400">Arayüzdeki ilerleme çubuğu ve anlık durum listesi ile
+                                    gönderim sürecini anbean izleyin.</p>
+                            </div>
+                            <div class="feature-card p-6 rounded-xl">
+                                <div class="text-3xl mb-3 text-teal-400">📊</div>
+                                <h3 class="font-bold text-lg text-teal-300">Kapsamlı Raporlama</h3>
+                                <p class="text-sm text-slate-400">İşlem sonunda otomatik oluşturulan renkli Excel
+                                    raporları ve CSV logları ile sonuçları analiz edin.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="installation" class="tab-content">
+                    <div class="content-card p-6 md:p-8 rounded-2xl shadow-lg">
+                        <h2 class="text-2xl md:text-3xl font-bold header-text mb-2">Kurulum Adımları</h2>
+                        <p class="text-slate-400 mb-6">Uygulamayı çalıştırmak için bilgisayarınızda Python 3.x sürümünün
+                            kurulu olması gerekmektedir. Aşağıdaki adımları takip ederek kurulumu tamamlayabilirsiniz.
+                        </p>
+
+                        <div class="space-y-6">
+                            <div>
+                                <h3 class="text-xl font-semibold text-slate-300"><span
+                                        class="bg-teal-500 text-slate-900 rounded-full w-8 h-8 inline-flex items-center justify-center mr-3">1</span>Proje
+                                    Dosyalarını Hazırlama</h3>
+                                <ol class="list-decimal list-inside mt-2 ml-4 text-slate-400 space-y-1">
+                                    <li>Projeyi indirin ve bir ana klasöre çıkarın.</li>
+                                    <li>Ana klasör içinde `assets` adında bir klasör oluşturun.</li>
+                                    <li>Kullanmak istediğiniz `logo.png` dosyasını `assets` klasörüne yerleştirin.</li>
+                                    <li>`main.py`, `gui.py`, ve `broadcaster_logic.py` dosyalarının ana klasörde
+                                        olduğundan emin olun.</li>
+                                </ol>
+                            </div>
+
+                            <div>
+                                <h3 class="text-xl font-semibold text-slate-300"><span
+                                        class="bg-teal-500 text-slate-900 rounded-full w-8 h-8 inline-flex items-center justify-center mr-3">2</span>Bağımlılıkları
+                                    Kurma</h3>
+                                <p class="mt-2 text-slate-400">Komut satırını (Terminal veya CMD) açıp projenin ana
+                                    klasörüne gidin ve gerekli Python kütüphanelerini kurmak için aşağıdaki komutu
+                                    çalıştırın:</p>
+                                <div class="code-block mt-2">
+                                    <pre>pip install -r requirements.txt</pre>
+                                    <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="text-xl font-semibold text-slate-300"><span
+                                        class="bg-teal-500 text-slate-900 rounded-full w-8 h-8 inline-flex items-center justify-center mr-3">3</span>Uygulamayı
+                                    Çalıştırma</h3>
+                                <p class="mt-2 text-slate-400">Kurulum tamamlandıktan sonra, uygulamayı başlatmak için
+                                    aynı komut satırında şu komutu kullanın:</p>
+                                <div class="code-block mt-2">
+                                    <pre>python main.py</pre>
+                                    <button class="copy-btn" onclick="copyCode(this)">Kopyala</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="usage" class="tab-content">
+                    <div class="content-card p-6 md:p-8 rounded-2xl shadow-lg">
+                        <h2 class="text-2xl md:text-3xl font-bold header-text mb-2">Kullanım Kılavuzu</h2>
+                        <p class="text-slate-400 mb-8">Uygulamayı verimli bir şekilde kullanmak için aşağıda belirtilen
+                            işlem akışını takip edebilirsiniz. Her adım, başarılı bir gönderim süreci için önemlidir.
+                        </p>
+
+                        <div class="flow-container space-y-4">
+                            <div class="usage-step pl-6 py-4 relative">
+                                <div
+                                    class="absolute -left-3 top-4 w-6 h-6 bg-teal-500 rounded-full border-4 border-slate-900">
+                                </div>
+                                <h3 class="font-bold text-lg text-slate-300">1. Excel Hazırlığı</h3>
+                                <p class="text-slate-400">Gönderim için bir Excel dosyası oluşturun. Dosyada `phone`
+                                    (zorunlu), `name` (isteğe bağlı), ve `message` (isteğe bağlı) sütunları
+                                    bulunmalıdır.</p>
+                            </div>
+                            <div class="usage-step pl-6 py-4 relative">
+                                <div
+                                    class="absolute -left-3 top-4 w-6 h-6 bg-teal-500 rounded-full border-4 border-slate-900">
+                                </div>
+                                <h3 class="font-bold text-lg text-slate-300">2. Dosya Seçimi</h3>
+                                <p class="text-slate-400">Uygulamadaki "Dosya Seç" butonu ile hazırladığınız Excel
+                                    dosyasını seçin. Kişi listesi arayüzde görünecektir.</p>
+                            </div>
+                            <div class="usage-step pl-6 py-4 relative">
+                                <div
+                                    class="absolute -left-3 top-4 w-6 h-6 bg-teal-500 rounded-full border-4 border-slate-900">
+                                </div>
+                                <h3 class="font-bold text-lg text-slate-300">3. Mesaj Şablonu ve Hız Modu</h3>
+                                <p class="text-slate-400">Ana metin kutusuna mesajınızı yazın. Kişiselleştirme için
+                                    `{name}` kullanın. Sol menüden `SAFE`, `FAST` veya `TURBO` hız modunu seçin.</p>
+                            </div>
+                            <div class="usage-step pl-6 py-4 relative">
+                                <div
+                                    class="absolute -left-3 top-4 w-6 h-6 bg-teal-500 rounded-full border-4 border-slate-900">
+                                </div>
+                                <h3 class="font-bold text-lg text-slate-300">4. Gönderimi Başlatma</h3>
+                                <p class="text-slate-400">"Gönderimi BAŞLAT" düğmesine tıklayın. Chrome tarayıcısı
+                                    açılacaktır.</p>
+                            </div>
+                            <div class="usage-step pl-6 py-4 relative">
+                                <div
+                                    class="absolute -left-3 top-4 w-6 h-6 bg-teal-500 rounded-full border-4 border-slate-900">
+                                </div>
+                                <h3 class="font-bold text-lg text-slate-300">5. WhatsApp Oturumu</h3>
+                                <p class="text-slate-400">Eğer oturumunuz açık değilse, ekrandaki QR kodu
+                                    telefonunuzdaki WhatsApp uygulaması ile okutun. Bu işlemi sadece ilk kullanımda
+                                    yapmanız gerekir.</p>
+                            </div>
+                            <div class="usage-step pl-6 py-4 relative">
+                                <div
+                                    class="absolute -left-3 top-4 w-6 h-6 bg-teal-500 rounded-full border-4 border-slate-900">
+                                </div>
+                                <h3 class="font-bold text-lg text-slate-300">6. İzleme ve Raporlama</h3>
+                                <p class="text-slate-400">Gönderim sürecini arayüzden takip edin. İşlem tamamlandığında,
+                                    sonuç raporlarının kaydedildiği klasör size bildirilecektir.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="structure" class="tab-content">
+                    <div class="content-card p-6 md:p-8 rounded-2xl shadow-lg">
+                        <h2 class="text-2xl md:text-3xl font-bold header-text mb-2">Teknik ve Proje Yapısı</h2>
+                        <p class="text-slate-400 mb-8">Bu proje, bakımı ve geliştirmesi kolay, modüler bir mimari
+                            üzerine kurulmuştur. Her dosyanın belirli bir sorumluluğu vardır, bu da kodun daha temiz ve
+                            anlaşılır olmasını sağlar.</p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                            <div>
+                                <h3 class="text-xl font-semibold text-slate-300 mb-3">Proje Dosya Yapısı</h3>
+                                <div class="code-block text-sm">
+                                    <pre>
+.
+├── main.py
+├── gui.py
+├── broadcaster_logic.py
+├── requirements.txt
+├── README.md
+└── assets/
+    └── logo.png
+                                    </pre>
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <h3 class="text-xl font-semibold text-slate-300 mb-3">Modül Sorumluluk Dağılımı</h3>
+                                <div class="chart-container">
+                                    <canvas id="structureChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+    </div>
+
+    <script>
+        const tabs = document.querySelectorAll('.tab-btn');
+        const contents = document.querySelectorAll('.tab-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const target = tab.getAttribute('data-tab');
+
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                contents.forEach(content => {
+                    if (content.id === target) {
+                        content.classList.add('active');
+                    } else {
+                        content.classList.remove('active');
+                    }
+                });
+
+                if (target === 'structure') {
+                    renderStructureChart();
+                }
+            });
+        });
+
+        function copyCode(button) {
+            const pre = button.previousElementSibling;
+            const text = pre.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                button.innerText = 'Kopyalandı!';
+                setTimeout(() => {
+                    button.innerText = 'Kopyala';
+                }, 2000);
+            }).catch(err => {
+                console.error('Kopyalama başarısız oldu: ', err);
+            });
+        }
+
+        let structureChartInstance = null;
+
+        function renderStructureChart() {
+            const ctx = document.getElementById('structureChart');
+            if (!ctx) return;
+
+            if (structureChartInstance) {
+                structureChartInstance.destroy();
+            }
+
+            const data = {
+                labels: [
+                    'Arayüz (gui.py)',
+                    'Otomasyon Mantığı (broadcaster_logic.py)',
+                    'Başlatıcı (main.py)'
+                ],
+                datasets: [{
+                    label: 'Kod Sorumluluğu',
+                    data: [45, 45, 10],
+                    backgroundColor: [
+                        '#2dd4bf',
+                        '#0d9488',
+                        '#64748b'
+                    ],
+                    borderColor: '#0f172a', /* Body background color for dark theme */
+                    borderWidth: 4,
+                    hoverOffset: 8
+                }]
+            };
+
+            const options = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                size: 14,
+                                family: "'Inter', sans-serif"
+                            },
+                            color: '#94a3b8', /* Slate-400 */
+                            padding: 20
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed !== null) {
+                                    label += context.parsed + '%';
+                                }
+                                return label;
+                            }
+                        },
+                        bodyFont: {
+                            size: 14,
+                            family: "'Inter', sans-serif"
+                        },
+                        titleFont: {
+                            size: 16,
+                            family: "'Inter', sans-serif"
+                        }
+                    }
+                },
+                cutout: '50%'
+            };
+
+            structureChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: data,
+                options: options
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderStructureChart();
+        });
+
+    </script>
+</body>
+
+</html>
